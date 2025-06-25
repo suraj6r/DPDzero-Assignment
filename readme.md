@@ -1,101 +1,56 @@
-### 🧪 **DevOps Intern Assignment: Nginx Reverse Proxy + Docker**
+# DevOps Intern Assignment: Nginx Reverse Proxy + Docker
 
-You are expected to set up a simple system where:
+## Project Overview
 
-1. **Two Dockerized backend services** (can be dummy services) run on different ports.
-2. An **Nginx reverse proxy** (also in a Docker container) routes:
-
-   * `/service1` requests to backend service 1
-   * `/service2` requests to backend service 2
-3. All services must be accessible via a single port (e.g., `localhost:8080`).
+This project demonstrates how to set up a multi-service application using Docker Compose and an Nginx reverse proxy. It features two backend services — one written in Go and another in Python (Flask) — both running in separate Docker containers. An Nginx container acts as a reverse proxy, routing incoming HTTP requests based on URL paths to the appropriate service.
 
 ---
 
-### ✅ **Requirements**
+## Architecture
 
-1. Use Docker Compose to bring up the entire system.
-2. Each backend service should respond with a JSON payload like:
+- **service1 (Go app):**  
+  Listens on port 8001 inside its container. It provides two endpoints: `/ping` and `/hello`.
 
-   ```json
-   {"service": "service1"}
-   ```
-3. The Nginx config should support:
+- **service2 (Python Flask app):**  
+  Listens on port 8002 inside its container. It provides `/ping`, `/hello`, and `/` (root) endpoints.
 
-   * Routing based on URL path prefix (`/service1`, `/service2`)
-   * Logging incoming requests with timestamp and path
-4. The system should work with a single command:
+- **Nginx reverse proxy:**  
+  Runs in its own container, listens on port 80 internally (exposed as 8080 on host ec2-instance), and routes traffic as follows:
+  
+  - Requests to `/service1/*` are forwarded to `service1` with the `/service1` prefix stripped.
+  - Requests to `/service2/*` are forwarded to `service2` with the `/service2` prefix stripped.
+  - Requests to `/` (root) are forwarded directly to `service2` root endpoint.
+  - Redirects are configured for `/service1` and `/service2` without trailing slashes to their trailing-slash URLs.
 
-   ```bash
-   docker-compose up --build
-   ```
-5. Bonus: Add a health check for both services and show logs of successful routing.
-
----
-
-### 📁 Suggested Project Structure
-
-```
-.
-├── docker-compose.yml
-├── nginx
-│   ├── default.conf
-│   └── Dockerfile
-├── service_1
-│   ├── app.py
-│   └── Dockerfile
-├── service_2
-│   ├── app.py
-│   └── Dockerfile
-└── README.md
-```
+All containers communicate over Docker's default bridge network.
 
 ---
 
-### 📦 Tech Constraints
+## Routing Details
 
-* Nginx must run in a Docker container, not on host
-* Use bridge networking (no host networking)
-
----
-
-### 📝 Submission Instructions
-
-1. Upload your project to GitHub or GitLab.
-2. Include a short `README.md` with:
-
-   * Setup instructions
-   * How routing works
-   * Any bonus you implemented
-3. Deadline: **1 week**
-4. Bonus points for:
-
-   * Logging clarity
-   * Clean and modular Docker setup
-   * Healthcheck or automated test script
+| URL Path                 | Proxied To          | Notes                                   |
+|--------------------------|---------------------|-----------------------------------------|
+| `/`                      | service2:8002       | Root requests go to service2            |
+| `/service1/ping`         | service1:8001/ping  | service1 handles `/ping` endpoint       |
+| `/service1/hello`        | service1:8001/hello | service1 handles `/hello` endpoint      |
+| `/service2/ping`         | service2:8002/ping  | service2 `/ping` endpoint               |
+| `/service2/hello`        | service2:8002/hello | service2 `/hello` endpoint              |
 
 ---
 
-### ❓FAQs
+## Key Features
 
-**Q: Is this a full-time role?**
-Yes. You would need to be in office in Bangalore.
+- **Single port access:** All services accessible via `54.252.190.153:8080` through Nginx reverse proxy.
+- **Path-based routing:** Nginx routes requests based on URL prefixes.
+- **Request logging:** Custom Nginx logs capture client IP, timestamp, and request path.
+- **Dockerized services:** Each backend service runs in its own container for isolation.
+- **Clean modular setup:** Separate Dockerfiles for Go app, Python app, and Nginx proxy.
+- **Redirects:** Handles trailing slash normalization via Nginx.
 
-**Q: Is there a stipend?**
-Yes. 20k INR per month
+---
 
-**Q: How many positions are open?**
-Two positions are open.
+## How to Run
 
-**Q: I am still in college. Can I apply?**
-Unfortunately, we are looking for post-college candidates.
-
-**Q: Can I reach out for doubts?**
-No — due to the volume of submissions. Please use your creativity and assumptions where needed.
-
-**Q: Can I use ChatGPT or Copilot?**
-Yes, feel free to use AI tools — we care about your implementation and understanding.
-
-**Q: This feels like a lot for an intern assignment.**
-We agree it’s non-trivial — we’ve received many applications, so this helps us filter based on quality.
-
+```bash
+docker-compose up --build
 
