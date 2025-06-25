@@ -40,7 +40,7 @@ All containers communicate over Docker's default bridge network.
 
 ## Key Features
 
-- **Single port access:** All services accessible via `54.252.190.153:8080` through Nginx reverse proxy.
+- **Single port access:** All services accessible via `localhost:8080` through Nginx reverse proxy.
 - **Path-based routing:** Nginx routes requests based on URL prefixes.
 - **Request logging:** Custom Nginx logs capture client IP, timestamp, and request path.
 - **Dockerized services:** Each backend service runs in its own container for isolation.
