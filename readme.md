@@ -15,7 +15,7 @@ This project demonstrates how to set up a multi-service application using Docker
   Listens on port 8002 inside its container. It provides `/ping`, `/hello`, and `/` (root) endpoints.
 
 - **Nginx reverse proxy:**  
-  Runs in its own container, listens on port 80 internally (exposed as 8080 on host ec2-instance), and routes traffic as follows:
+  Runs in its own container, listens on port 80 internally (exposed as 8080 on host), and routes traffic as follows:
   
   - Requests to `/service1/*` are forwarded to `service1` with the `/service1` prefix stripped.
   - Requests to `/service2/*` are forwarded to `service2` with the `/service2` prefix stripped.
@@ -40,7 +40,7 @@ All containers communicate over Docker's default bridge network.
 
 ## Key Features
 
-- **Single port access:** All services accessible via `54.252.190.153:8080` through Nginx reverse proxy.
+- **Single port access:** All services accessible via `localhost:8080` through Nginx reverse proxy.
 - **Path-based routing:** Nginx routes requests based on URL prefixes.
 - **Request logging:** Custom Nginx logs capture client IP, timestamp, and request path.
 - **Dockerized services:** Each backend service runs in its own container for isolation.
